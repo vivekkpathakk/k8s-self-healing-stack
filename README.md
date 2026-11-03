@@ -65,7 +65,7 @@ Expected: `[HEALER ALERT] Unhealthy pod found! ...` then `[HEALER ACTION] Succes
 ```bash
 kubectl -n kube-system port-forward svc/self-healer 8080:8080
 kubectl -n monitoring port-forward svc/prometheus-stack-grafana 3000:80
-ssh -L 3000:localhost:3000 -L 8080:localhost:8080 <user>@<vm-ip>   # from your laptop
+ssh -L 3000:localhost:3000 azureuser@http://172.198.153.74  
 ```
 
 ## Security notes
