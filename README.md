@@ -10,7 +10,6 @@ Azure VM (Ubuntu 24.04)
       ├── kube-system: self-healing-agent (Go)  ── :8080  /  (dashboard)  /metrics  /healthz
       ├── monitoring:  Prometheus, Alertmanager, Grafana, node-exporter, kube-state-metrics
       └── default:     target workloads (watched namespaces)
-Alerts: Prometheus rules -> Alertmanager -> Slack (webhook kept in a Kubernetes Secret)
 ```
 
 ## Structure
@@ -37,7 +36,6 @@ docker save local-registry/k8s-self-healer:v1.0.0 -o self-healer.tar
 sudo k3s ctr images import self-healer.tar
 kubectl apply -f deployments/k8s/self-healing-agent.yaml
 kubectl apply -f deployments/monitoring/prometheus-alerts.yaml
-kubectl -n monitoring create secret generic slack-webhook --from-literal=url='<SLACK_WEBHOOK_URL>'
 helm upgrade prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring \
   --reuse-values -f deployments/monitoring/alertmanager-config.yaml
 ```
@@ -73,7 +71,7 @@ ssh -L 3000:localhost:3000 azureuser@http://172.198.153.74
 - Delete rights only in watched namespaces; cluster-wide access is read-only.
 - Skips pods without a controller and anything outside the allowlist (kube-system, monitoring).
 - Non-root, read-only filesystem, all capabilities dropped, resource limits.
-- Slack webhook and Grafana password live in Secrets, never in Git. Do not commit screenshots that show IPs or credentials.
+- Grafana password live in Secrets, never in Git. Do not commit screenshots that show IPs or credentials.
 - Keep NSG ports 3000, 9090, 9093 and 6443 closed to the internet.
 
 ## Troubleshooting
@@ -81,6 +79,5 @@ ssh -L 3000:localhost:3000 azureuser@http://172.198.153.74
 | Symptom | Check |
 |---|---|
 | Rules not loaded | `release` label equals the Helm release name |
-| No Slack message | Secret `slack-webhook` exists; `kubectl -n monitoring logs alertmanager-prometheus-stack-kube-prom-alertmanager-0` |
 | Agent cannot delete | RoleBinding exists in the target namespace |
 | Image not found | Re-import with `sudo k3s ctr images import` |
